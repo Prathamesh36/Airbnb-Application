@@ -2,13 +2,16 @@ package com.portfolio.projects.airBnbApp.service.impl;
 
 import com.portfolio.projects.airBnbApp.dto.HotelDto;
 import com.portfolio.projects.airBnbApp.entity.Hotel;
+import com.portfolio.projects.airBnbApp.entity.Room;
 import com.portfolio.projects.airBnbApp.exception.ResourceNotFoundException;
 import com.portfolio.projects.airBnbApp.repository.HotelRepository;
 import com.portfolio.projects.airBnbApp.service.HotelService;
+import com.portfolio.projects.airBnbApp.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -17,6 +20,7 @@ public class HotelServiceImpl implements HotelService {
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
+    private final InventoryService inventoryService;
 
     @Override
     public HotelDto createNewHotel(HotelDto hotelDto) {
@@ -48,10 +52,37 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
+        Hotel hotel = hotelRepository.
+                findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
         boolean exist = hotelRepository.existsById(id);
         if(!exist) throw new ResourceNotFoundException(("Hotel not found with ID: " + id));
 
         hotelRepository.deleteById(id);
+
+        for (Room room: hotel.getRooms()){
+            inventoryService.deleteFutureInventories(room);
+
+        }
+    }
+
+    @Override
+    @Transactional
+    public void activateHotel(Long hotelId) {
+        log.info("Activating the hotel with ID: {}", hotelId);
+        Hotel hotel = hotelRepository.
+                findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + hotelId));
+        hotel.setActive(true);
+        hotelRepository.save(hotel);
+        log.info("Hotel activated with ID: {}", hotel.getId());
+
+        //assuming only do it once
+        for (Room room: hotel.getRooms()){
+            inventoryService.initializeRoomForAYear(room);
+
+        }
     }
 }
