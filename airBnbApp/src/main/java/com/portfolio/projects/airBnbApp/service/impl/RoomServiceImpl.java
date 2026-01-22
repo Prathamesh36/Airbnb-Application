@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,6 +67,7 @@ public class RoomServiceImpl implements RoomService {
         return modelMapper.map(room, RoomDto.class);
     }
 
+    @Transactional
     @Override
     public void deleteRoomById(Long roomId) {
         log.info("Deleting room with ID: {}", roomId);
@@ -74,9 +76,8 @@ public class RoomServiceImpl implements RoomService {
                 findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + roomId));
 
+        inventoryService.deleteAllInventories(room);
         roomRepository.deleteById(roomId);
         log.info("Room deleted with ID: {}", roomId);
-
-        inventoryService.deleteFutureInventories(room);
     }
 }
