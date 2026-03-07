@@ -32,14 +32,17 @@ public class Inventory {
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name= "room_id", nullable = false)
     private Room room;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate date;
 
     @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
     private Integer bookedCount;
+
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    private Integer reservedCount;
 
     @Column(nullable = false)
     private Integer totalCount;
@@ -47,8 +50,8 @@ public class Inventory {
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal surgeFactor;
 
-    @Column(nullable = false)
-    private BigDecimal price;       // = basePrice * surgeFactor
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price; // basePrice * surgeFactor
 
     @Column(nullable = false)
     private String city;
