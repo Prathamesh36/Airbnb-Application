@@ -16,13 +16,15 @@ import com.portfolio.projects.airBnbApp.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.portfolio.projects.airBnbApp.util.AppUtils.getCurrentUser;
 
 @Service
 @Slf4j
@@ -136,6 +138,18 @@ public class HotelServiceImpl implements HotelService{
                 .toList();
 
         return new HotelInfoDto(modelMapper.map(hotel, HotelDto.class), rooms);
+    }
+
+    @Override
+    public List<HotelDto> getAllHotels() {
+        User user = getCurrentUser();
+        log.info("Getting all hotels for the admin user with ID: {}", user.getId());
+        List<Hotel> hotels = hotelRepository.findByOwner(user);
+
+        return hotels
+                .stream()
+                .map((element) -> modelMapper.map(element, HotelDto.class))
+                .collect(Collectors.toList());
     }
 
 
