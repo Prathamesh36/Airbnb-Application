@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Relational Database
   postgres:
@@ -21,28 +19,20 @@ services:
     ports:
       - "6379:6379"
 
-  # Event Stream Coordinator
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: airbnb-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  # Message Broker (Kafka) - Remapped host port to 9094 to avoid local 9092 conflicts
+  # Message Broker (Kafka with KRaft - No Zookeeper)
   kafka:
-    image: confluentinc/cp-kafka:7.5.0
+    image: apache/kafka:latest
     container_name: airbnb-kafka
-    depends_on:
-      - zookeeper
     ports:
-      - "9094:9092"
+      - "9094:9094"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
 volumes:
   postgres_data:

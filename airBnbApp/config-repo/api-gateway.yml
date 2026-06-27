@@ -5,8 +5,8 @@ spring:
         locator:
           enabled: true
       routes:
-        - id: monolith-auth
-          uri: lb://airBnbApp
+        - id: auth-service
+          uri: lb://auth-service
           predicates:
             - Path=/auth/**
         - id: monolith-bookings
@@ -21,8 +21,8 @@ spring:
           uri: lb://airBnbApp
           predicates:
             - Path=/admin/**
-        - id: monolith-users
-          uri: lb://airBnbApp
+        - id: user-service
+          uri: lb://user-service
           predicates:
             - Path=/users/**
         - id: monolith-webhook

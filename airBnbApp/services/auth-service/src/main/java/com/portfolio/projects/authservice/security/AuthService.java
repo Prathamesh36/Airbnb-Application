@@ -1,12 +1,12 @@
-package com.portfolio.projects.airBnbApp.security;
+package com.portfolio.projects.authservice.security;
 
-import com.portfolio.projects.airBnbApp.dto.LoginDto;
-import com.portfolio.projects.airBnbApp.dto.SignUpRequestDto;
-import com.portfolio.projects.airBnbApp.dto.UserDto;
-import com.portfolio.projects.airBnbApp.entity.User;
-import com.portfolio.projects.airBnbApp.entity.enums.Role;
-import com.portfolio.projects.airBnbApp.exception.ResourceNotFoundException;
-import com.portfolio.projects.airBnbApp.repository.UserRepository;
+import com.portfolio.projects.authservice.dto.LoginDto;
+import com.portfolio.projects.authservice.dto.SignUpRequestDto;
+import com.portfolio.projects.authservice.dto.UserDto;
+import com.portfolio.projects.authservice.entity.User;
+import com.portfolio.projects.authservice.entity.enums.Role;
+import com.portfolio.projects.authservice.exception.ResourceNotFoundException;
+import com.portfolio.projects.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;

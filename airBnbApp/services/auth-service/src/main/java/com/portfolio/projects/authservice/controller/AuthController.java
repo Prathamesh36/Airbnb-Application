@@ -1,10 +1,10 @@
-package com.portfolio.projects.airBnbApp.controller;
+package com.portfolio.projects.authservice.controller;
 
-import com.portfolio.projects.airBnbApp.dto.LoginDto;
-import com.portfolio.projects.airBnbApp.dto.LoginResponseDto;
-import com.portfolio.projects.airBnbApp.dto.SignUpRequestDto;
-import com.portfolio.projects.airBnbApp.dto.UserDto;
-import com.portfolio.projects.airBnbApp.security.AuthService;
+import com.portfolio.projects.authservice.dto.LoginDto;
+import com.portfolio.projects.authservice.dto.LoginResponseDto;
+import com.portfolio.projects.authservice.dto.SignUpRequestDto;
+import com.portfolio.projects.authservice.dto.UserDto;
+import com.portfolio.projects.authservice.security.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

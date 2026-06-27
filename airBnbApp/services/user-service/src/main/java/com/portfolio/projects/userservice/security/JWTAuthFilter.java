@@ -1,7 +1,7 @@
-package com.portfolio.projects.airBnbApp.security;
+package com.portfolio.projects.userservice.security;
 
-import com.portfolio.projects.airBnbApp.entity.User;
-import com.portfolio.projects.airBnbApp.repository.UserRepository;
+import com.portfolio.projects.userservice.entity.User;
+import com.portfolio.projects.userservice.service.UserService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +24,7 @@ import java.io.IOException;
 public class JWTAuthFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
@@ -44,8 +44,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             Long userId = jwtService.getUserIdFromToken(token);
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User user = userRepository.findById(userId).orElse(null);
-                if (user == null) return;
+                User user = userService.getUserById(userId);
                 // check if the user should be allowed
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

@@ -1,7 +1,7 @@
-package com.portfolio.projects.airBnbApp.security;
+package com.portfolio.projects.authservice.security;
 
-import com.portfolio.projects.airBnbApp.entity.User;
-import com.portfolio.projects.airBnbApp.repository.UserRepository;
+import com.portfolio.projects.authservice.entity.User;
+import com.portfolio.projects.authservice.repository.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

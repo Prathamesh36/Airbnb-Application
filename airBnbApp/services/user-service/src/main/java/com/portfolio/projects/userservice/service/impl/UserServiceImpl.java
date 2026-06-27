@@ -1,11 +1,11 @@
-package com.portfolio.projects.airBnbApp.service.impl;
+package com.portfolio.projects.userservice.service.impl;
 
-import com.portfolio.projects.airBnbApp.dto.ProfileUpdateRequestDto;
-import com.portfolio.projects.airBnbApp.dto.UserDto;
-import com.portfolio.projects.airBnbApp.entity.User;
-import com.portfolio.projects.airBnbApp.exception.ResourceNotFoundException;
-import com.portfolio.projects.airBnbApp.repository.UserRepository;
-import com.portfolio.projects.airBnbApp.service.UserService;
+import com.portfolio.projects.userservice.dto.ProfileUpdateRequestDto;
+import com.portfolio.projects.userservice.dto.UserDto;
+import com.portfolio.projects.userservice.entity.User;
+import com.portfolio.projects.userservice.exception.ResourceNotFoundException;
+import com.portfolio.projects.userservice.repository.UserRepository;
+import com.portfolio.projects.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.stereotype.Service;
 
-import static com.portfolio.projects.airBnbApp.util.AppUtils.getCurrentUser;
+import static com.portfolio.projects.userservice.util.AppUtils.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
