@@ -3,7 +3,7 @@ package com.portfolio.projects.airBnbApp.service.impl;
 import com.portfolio.projects.airBnbApp.dto.BookingDto;
 import com.portfolio.projects.airBnbApp.dto.BookingRequest;
 import com.portfolio.projects.airBnbApp.dto.GuestDto;
-import com.portfolio.projects.airBnbApp.dto.HotelReportDto;
+import com.portfolio.projects.airBnbApp.dto.PropertyReportDto;
 import com.portfolio.projects.airBnbApp.entity.*;
 import com.portfolio.projects.airBnbApp.entity.enums.BookingStatus;
 import com.portfolio.projects.airBnbApp.exception.ResourceNotFoundException;
@@ -46,7 +46,7 @@ public class BookingServiceImpl implements BookingService{
     private final ModelMapper modelMapper;
 
     private final BookingRepository bookingRepository;
-    private final HotelRepository hotelRepository;
+    private final PropertyRepository PropertyRepository;
     private final RoomRepository roomRepository;
     private final InventoryRepository inventoryRepository;
     private final CheckoutService checkoutService;
@@ -59,11 +59,11 @@ public class BookingServiceImpl implements BookingService{
     @Transactional
     public BookingDto initialiseBooking(BookingRequest bookingRequest) {
 
-        log.info("Initialising booking for hotel : {}, room: {}, date {}-{}", bookingRequest.getHotelId(),
+        log.info("Initialising booking for Property : {}, room: {}, date {}-{}", bookingRequest.getPropertyId(),
                 bookingRequest.getRoomId(), bookingRequest.getCheckInDate(), bookingRequest.getCheckOutDate());
 
-        Hotel hotel = hotelRepository.findById(bookingRequest.getHotelId()).orElseThrow(() ->
-                new ResourceNotFoundException("Hotel not found with id: "+bookingRequest.getHotelId()));
+        Property Property = PropertyRepository.findById(bookingRequest.getPropertyId()).orElseThrow(() ->
+                new ResourceNotFoundException("Property not found with id: "+bookingRequest.getPropertyId()));
 
         Room room = roomRepository.findById(bookingRequest.getRoomId()).orElseThrow(() ->
                 new ResourceNotFoundException("Room not found with id: "+bookingRequest.getRoomId()));
@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService{
 
         Booking booking = Booking.builder()
                 .bookingStatus(BookingStatus.RESERVED)
-                .hotel(hotel)
+                .Property(Property)
                 .room(room)
                 .checkInDate(bookingRequest.getCheckInDate())
                 .checkOutDate(bookingRequest.getCheckOutDate())
@@ -235,16 +235,16 @@ public class BookingServiceImpl implements BookingService{
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByHotelId(Long hotelId) {
-        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel not " +
-                "found with ID: "+hotelId));
+    public List<BookingDto> getAllBookingsByPropertyId(Long PropertyId) {
+        Property Property = PropertyRepository.findById(PropertyId).orElseThrow(() -> new ResourceNotFoundException("Property not " +
+                "found with ID: "+PropertyId));
         User user = getCurrentUser();
 
-        log.info("Getting all booking for the hotel with ID: {}", hotelId);
+        log.info("Getting all booking for the Property with ID: {}", PropertyId);
 
-        if(!user.equals(hotel.getOwner())) throw new AccessDeniedException("You are not the owner of hotel with id: "+hotelId);
+        if(!user.equals(Property.getOwner())) throw new AccessDeniedException("You are not the owner of Property with id: "+PropertyId);
 
-        List<Booking> bookings = bookingRepository.findByHotel(hotel);
+        List<Booking> bookings = bookingRepository.findByProperty(Property);
 
         return bookings.stream()
                 .map((element) -> modelMapper.map(element, BookingDto.class))
@@ -252,20 +252,20 @@ public class BookingServiceImpl implements BookingService{
     }
 
     @Override
-    public HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate) {
+    public PropertyReportDto getPropertyReport(Long PropertyId, LocalDate startDate, LocalDate endDate) {
 
-        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel not " +
-                "found with ID: "+hotelId));
+        Property Property = PropertyRepository.findById(PropertyId).orElseThrow(() -> new ResourceNotFoundException("Property not " +
+                "found with ID: "+PropertyId));
         User user = getCurrentUser();
 
-        log.info("Generating report for hotel with ID: {}", hotelId);
+        log.info("Generating report for Property with ID: {}", PropertyId);
 
-        if(!user.equals(hotel.getOwner())) throw new AccessDeniedException("You are not the owner of hotel with id: "+hotelId);
+        if(!user.equals(Property.getOwner())) throw new AccessDeniedException("You are not the owner of Property with id: "+PropertyId);
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
-        List<Booking> bookings = bookingRepository.findByHotelAndCreatedAtBetween(hotel, startDateTime, endDateTime);
+        List<Booking> bookings = bookingRepository.findByPropertyAndCreatedAtBetween(Property, startDateTime, endDateTime);
 
         Long totalConfirmedBookings = bookings
                 .stream()
@@ -280,7 +280,7 @@ public class BookingServiceImpl implements BookingService{
         BigDecimal avgRevenue = totalConfirmedBookings == 0 ? BigDecimal.ZERO :
                 totalRevenueOfConfirmedBookings.divide(BigDecimal.valueOf(totalConfirmedBookings), RoundingMode.HALF_UP);
 
-        return new HotelReportDto(totalConfirmedBookings, totalRevenueOfConfirmedBookings, avgRevenue);
+        return new PropertyReportDto(totalConfirmedBookings, totalRevenueOfConfirmedBookings, avgRevenue);
     }
 
     @Override

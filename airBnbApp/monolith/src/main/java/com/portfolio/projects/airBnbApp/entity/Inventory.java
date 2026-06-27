@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Setter
 @Table(
         uniqueConstraints = @UniqueConstraint(
-            name = "unique_hotel_room_date",
-            columnNames = {"hotel_id", "room_id", "date"}
+            name = "unique_Property_room_date",
+            columnNames = {"Property_id", "room_id", "date"}
 
 ))
 @Builder
@@ -28,8 +28,8 @@ public class Inventory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotel_id", nullable = false)
-    private Hotel hotel;
+    @JoinColumn(name = "Property_id", nullable = false)
+    private Property Property;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "room_id", nullable = false)

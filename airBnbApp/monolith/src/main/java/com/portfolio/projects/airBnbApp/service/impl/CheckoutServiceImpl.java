@@ -50,7 +50,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                                                     .setUnitAmount(booking.getAmount().multiply(BigDecimal.valueOf(100)).longValue())
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName(booking.getHotel().getName() +" : "+ booking.getRoom().getType())
+                                                                    .setName(booking.getProperty().getName() +" : "+ booking.getRoom().getType())
                                                                     .setDescription("Booking ID: "+booking.getId())
                                                                     .build()
                                                     )

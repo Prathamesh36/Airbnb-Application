@@ -1,6 +1,6 @@
 package com.portfolio.projects.airBnbApp.repository;
 
-import com.portfolio.projects.airBnbApp.entity.Hotel;
+import com.portfolio.projects.airBnbApp.entity.Property;
 import com.portfolio.projects.airBnbApp.entity.Inventory;
 import com.portfolio.projects.airBnbApp.entity.Room;
 import jakarta.persistence.LockModeType;
@@ -22,16 +22,16 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     void deleteByRoom(Room room);
 
     @Query("""
-            SELECT DISTINCT i.hotel
+            SELECT DISTINCT i.Property
             FROM Inventory i
             WHERE i.city = :city
                 AND i.date BETWEEN :startDate AND :endDate
                 AND i.closed = false
                 AND (i.totalCount - i.bookedCount - i.reservedCount) >= :roomsCount
-           GROUP BY i.hotel, i.room
+           GROUP BY i.Property, i.room
            HAVING COUNT(i.date) = :dateCount
            """)
-    Page<Hotel> findHotelsWithAvailableInventory(
+    Page<Property> findPropertysWithAvailableInventory(
             @Param("city") String city,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -115,7 +115,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                        @Param("endDate") LocalDate endDate,
                        @Param("numberOfRooms") int numberOfRooms);
 
-    List<Inventory> findByHotelAndDateBetween(Hotel hotel, LocalDate startDate, LocalDate endDate);
+    List<Inventory> findByPropertyAndDateBetween(Property Property, LocalDate startDate, LocalDate endDate);
 
     List<Inventory> findByRoomOrderByDate(Room room);
 

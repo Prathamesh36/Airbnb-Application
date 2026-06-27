@@ -1,10 +1,10 @@
 package com.portfolio.projects.airBnbApp.service.impl;
 
-import com.portfolio.projects.airBnbApp.entity.Hotel;
-import com.portfolio.projects.airBnbApp.entity.HotelMinPrice;
+import com.portfolio.projects.airBnbApp.entity.Property;
+import com.portfolio.projects.airBnbApp.entity.PropertyMinPrice;
 import com.portfolio.projects.airBnbApp.entity.Inventory;
-import com.portfolio.projects.airBnbApp.repository.HotelMinPriceRepository;
-import com.portfolio.projects.airBnbApp.repository.HotelRepository;
+import com.portfolio.projects.airBnbApp.repository.PropertyMinPriceRepository;
+import com.portfolio.projects.airBnbApp.repository.PropertyRepository;
 import com.portfolio.projects.airBnbApp.repository.InventoryRepository;
 import com.portfolio.projects.airBnbApp.strategy.PricingService;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class PricingUpdateService {
 
-    // Scheduler to update the inventory and HotelMinPrice tables every hour
+    // Scheduler to update the inventory and PropertyMinPrice tables every hour
 
-    private final HotelRepository hotelRepository;
+    private final PropertyRepository PropertyRepository;
     private final InventoryRepository inventoryRepository;
-    private final HotelMinPriceRepository hotelMinPriceRepository;
+    private final PropertyMinPriceRepository PropertyMinPriceRepository;
     private final PricingService pricingService;
 
 //    @Scheduled(cron = "*/5 * * * * *")
@@ -43,30 +43,30 @@ public class PricingUpdateService {
         int batchSize = 100;
 
         while(true) {
-            Page<Hotel> hotelPage = hotelRepository.findAll(PageRequest.of(page, batchSize));
-            if(hotelPage.isEmpty()) {
+            Page<Property> PropertyPage = PropertyRepository.findAll(PageRequest.of(page, batchSize));
+            if(PropertyPage.isEmpty()) {
                 break;
             }
-            hotelPage.getContent().forEach(this::updateHotelPrices);
+            PropertyPage.getContent().forEach(this::updatePropertyPrices);
 
             page++;
         }
     }
 
-    private void updateHotelPrices(Hotel hotel) {
-        log.info("Updating hotel prices for hotel ID: {}", hotel.getId());
+    private void updatePropertyPrices(Property Property) {
+        log.info("Updating Property prices for Property ID: {}", Property.getId());
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusYears(1);
 
-        List<Inventory> inventoryList = inventoryRepository.findByHotelAndDateBetween(hotel, startDate, endDate);
+        List<Inventory> inventoryList = inventoryRepository.findByPropertyAndDateBetween(Property, startDate, endDate);
 
         updateInventoryPrices(inventoryList);
 
-        updateHotelMinPrice(hotel, inventoryList, startDate, endDate);
+        updatePropertyMinPrice(Property, inventoryList, startDate, endDate);
     }
 
-    private void updateHotelMinPrice(Hotel hotel, List<Inventory> inventoryList, LocalDate startDate, LocalDate endDate) {
-        // Compute minimum price per day for the hotel
+    private void updatePropertyMinPrice(Property Property, List<Inventory> inventoryList, LocalDate startDate, LocalDate endDate) {
+        // Compute minimum price per day for the Property
         Map<LocalDate, BigDecimal> dailyMinPrices = inventoryList.stream()
                 .collect(Collectors.groupingBy(
                         Inventory::getDate,
@@ -75,17 +75,17 @@ public class PricingUpdateService {
                 .entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().orElse(BigDecimal.ZERO)));
 
-        // Prepare HotelPrice entities in bulk
-        List<HotelMinPrice> hotelPrices = new ArrayList<>();
+        // Prepare PropertyPrice entities in bulk
+        List<PropertyMinPrice> PropertyPrices = new ArrayList<>();
         dailyMinPrices.forEach((date, price) -> {
-            HotelMinPrice hotelPrice = hotelMinPriceRepository.findByHotelAndDate(hotel, date)
-                    .orElse(new HotelMinPrice(hotel, date));
-            hotelPrice.setPrice(price);
-            hotelPrices.add(hotelPrice);
+            PropertyMinPrice PropertyPrice = PropertyMinPriceRepository.findByPropertyAndDate(Property, date)
+                    .orElse(new PropertyMinPrice(Property, date));
+            PropertyPrice.setPrice(price);
+            PropertyPrices.add(PropertyPrice);
         });
 
-        // Save all HotelPrice entities in bulk
-        hotelMinPriceRepository.saveAll(hotelPrices);
+        // Save all PropertyPrice entities in bulk
+        PropertyMinPriceRepository.saveAll(PropertyPrices);
     }
 
     private void updateInventoryPrices(List<Inventory> inventoryList) {

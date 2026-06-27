@@ -13,10 +13,14 @@ spring:
           uri: lb://airBnbApp
           predicates:
             - Path=/bookings/**
-        - id: monolith-hotels
-          uri: lb://airBnbApp
+        - id: property-service-public
+          uri: lb://property-service
           predicates:
-            - Path=/hotels/**
+            - Path=/properties/**
+        - id: property-service-admin
+          uri: lb://property-service
+          predicates:
+            - Path=/admin/properties/**
         - id: monolith-admin
           uri: lb://airBnbApp
           predicates:

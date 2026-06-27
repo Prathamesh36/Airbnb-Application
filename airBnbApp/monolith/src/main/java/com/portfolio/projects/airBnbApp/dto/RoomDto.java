@@ -1,6 +1,6 @@
 package com.portfolio.projects.airBnbApp.dto;
 
-import com.portfolio.projects.airBnbApp.entity.Hotel;
+import com.portfolio.projects.airBnbApp.entity.Property;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;

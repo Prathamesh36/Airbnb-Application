@@ -3,7 +3,7 @@ package com.portfolio.projects.airBnbApp.service;
 import com.portfolio.projects.airBnbApp.dto.BookingDto;
 import com.portfolio.projects.airBnbApp.dto.BookingRequest;
 import com.portfolio.projects.airBnbApp.dto.GuestDto;
-import com.portfolio.projects.airBnbApp.dto.HotelReportDto;
+import com.portfolio.projects.airBnbApp.dto.PropertyReportDto;
 import com.stripe.model.Event;
 
 import java.time.LocalDate;
@@ -23,9 +23,9 @@ public interface BookingService {
 
     String getBookingStatus(Long bookingId);
 
-    List<BookingDto> getAllBookingsByHotelId(Long hotelId);
+    List<BookingDto> getAllBookingsByPropertyId(Long PropertyId);
 
-    HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate);
+    PropertyReportDto getPropertyReport(Long PropertyId, LocalDate startDate, LocalDate endDate);
 
     List<BookingDto> getMyBookings();
 }
