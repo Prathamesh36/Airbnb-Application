@@ -14,15 +14,12 @@ import com.portfolio.projects.booking_service.client.dto.PropertyDto;
 import com.portfolio.projects.booking_service.client.dto.RoomDto;
 
 import com.portfolio.projects.booking_service.service.BookingService;
-import com.portfolio.projects.booking_service.service.CheckoutService;
+import com.portfolio.projects.booking_service.client.PaymentClient;
+import com.portfolio.projects.booking_service.client.dto.CheckoutRequest;
 import com.portfolio.projects.booking_service.client.InventoryClient;
 import com.portfolio.projects.booking_service.client.dto.InventoryBookingDto;
 import com.portfolio.projects.booking_service.client.dto.ReserveInventoryResponse;
-import com.stripe.exception.StripeException;
-import com.stripe.model.Event;
-import com.stripe.model.Refund;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.RefundCreateParams;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -49,7 +46,7 @@ public class BookingServiceImpl implements BookingService{
     private final ModelMapper modelMapper;
 
     private final BookingRepository bookingRepository;
-    private final CheckoutService checkoutService;
+    private final PaymentClient paymentClient;
     private final InventoryClient inventoryClient;
     private final PropertyClient propertyClient;
 
@@ -139,8 +136,23 @@ public class BookingServiceImpl implements BookingService{
             throw new IllegalStateException("Booking has already expired");
         }
 
-        String sessionUrl = checkoutService.getCheckoutSession(booking,
-                frontendUrl+"/payments/success", frontendUrl+"/payments/failure");
+        PropertyDto property = propertyClient.getPropertyById(booking.getPropertyId());
+        RoomDto room = propertyClient.getRoomById(booking.getRoomId());
+        
+        CheckoutRequest request = CheckoutRequest.builder()
+                .bookingId(booking.getId())
+                .propertyId(booking.getPropertyId())
+                .roomId(booking.getRoomId())
+                .userId(booking.getUserId())
+                .userName("User") // Fallback, could fetch from UserClient
+                .userEmail("user@example.com") // Fallback
+                .amount(booking.getAmount())
+                .propertyName(property.getName())
+                .roomType(room.getType())
+                .build();
+
+        var response = paymentClient.initiateCheckout(request);
+        String sessionUrl = response.get("sessionUrl");
 
         booking.setBookingStatus(BookingStatus.PAYMENTS_PENDING);
         bookingRepository.save(booking);
@@ -148,34 +160,7 @@ public class BookingServiceImpl implements BookingService{
         return sessionUrl;
     }
 
-    @Override
-    @Transactional
-    public void capturePayment(Event event) {
-        if ("checkout.session.completed".equals(event.getType())) {
-            Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
-            if (session == null) return;
 
-            String sessionId = session.getId();
-            Booking booking =
-                    bookingRepository.findByPaymentSessionId(sessionId).orElseThrow(() ->
-                            new ResourceNotFoundException("Booking not found for session ID: "+sessionId));
-
-            booking.setBookingStatus(BookingStatus.CONFIRMED);
-            bookingRepository.save(booking);
-
-            InventoryBookingDto inventoryBookingDto = InventoryBookingDto.builder()
-                    .roomId(booking.getRoomId())
-                    .checkInDate(booking.getCheckInDate())
-                    .checkOutDate(booking.getCheckOutDate())
-                    .roomsCount(booking.getRoomsCount())
-                    .build();
-            inventoryClient.confirmInventory(inventoryBookingDto);
-
-            log.info("Successfully confirmed the booking for Booking ID: {}", booking.getId());
-        } else {
-            log.warn("Unhandled event type: {}", event.getType());
-        }
-    }
 
     @Override
     @Transactional
@@ -203,16 +188,12 @@ public class BookingServiceImpl implements BookingService{
                 .build();
         inventoryClient.releaseInventory(inventoryBookingDto);
 
-        // handle the refund
+        // handle the refund via payment-service
         try {
-            Session session = Session.retrieve(booking.getPaymentSessionId());
-            RefundCreateParams refundParams = RefundCreateParams.builder()
-                    .setPaymentIntent(session.getPaymentIntent())
-                    .build();
-
-            Refund.create(refundParams);
-        } catch (StripeException e) {
-            throw new RuntimeException(e);
+            paymentClient.refundPayment(java.util.Map.of("bookingId", bookingId));
+        } catch (Exception e) {
+            log.error("Failed to refund payment for booking: {}", bookingId, e);
+            throw new RuntimeException("Refund failed", e);
         }
     }
 

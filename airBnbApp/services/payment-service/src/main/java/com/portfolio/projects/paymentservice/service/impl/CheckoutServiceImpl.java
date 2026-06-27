@@ -1,13 +1,10 @@
-package com.portfolio.projects.booking_service.service.impl;
+package com.portfolio.projects.paymentservice.service.impl;
 
-import com.portfolio.projects.booking_service.entity.Booking;
-import com.portfolio.projects.booking_service.repository.BookingRepository;
-import com.portfolio.projects.booking_service.service.CheckoutService;
-import com.portfolio.projects.booking_service.client.PropertyClient;
-import com.portfolio.projects.booking_service.client.UserClient;
-import com.portfolio.projects.booking_service.client.dto.PropertyDto;
-import com.portfolio.projects.booking_service.client.dto.RoomDto;
-import com.portfolio.projects.booking_service.client.dto.UserDto;
+import com.portfolio.projects.paymentservice.dto.CheckoutRequest;
+import com.portfolio.projects.paymentservice.entity.Payment;
+import com.portfolio.projects.paymentservice.entity.enums.PaymentStatus;
+import com.portfolio.projects.paymentservice.repository.PaymentRepository;
+import com.portfolio.projects.paymentservice.service.CheckoutService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.checkout.Session;
@@ -16,6 +13,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -24,22 +22,17 @@ import java.math.BigDecimal;
 @Slf4j
 public class CheckoutServiceImpl implements CheckoutService {
 
-    private final BookingRepository bookingRepository;
-    private final PropertyClient propertyClient;
-    private final UserClient userClient;
+    private final PaymentRepository paymentRepository;
 
     @Override
-    public String getCheckoutSession(Booking booking, String successUrl, String failureUrl) {
-        log.info("Creating session for booking with ID: {}", booking.getId());
-
-        UserDto user = userClient.getUserById(booking.getUserId());
-        PropertyDto property = propertyClient.getPropertyById(booking.getPropertyId());
-        RoomDto room = propertyClient.getRoomById(booking.getRoomId());
+    @Transactional
+    public String getCheckoutSession(CheckoutRequest checkoutRequest, String successUrl, String failureUrl) {
+        log.info("Creating session for booking with ID: {}", checkoutRequest.getBookingId());
 
         try {
             CustomerCreateParams customerParams = CustomerCreateParams.builder()
-                    .setName(user.getName())
-                    .setEmail(user.getEmail())
+                    .setName(checkoutRequest.getUserName())
+                    .setEmail(checkoutRequest.getUserEmail())
                     .build();
             Customer customer = Customer.create(customerParams);
 
@@ -49,17 +42,18 @@ public class CheckoutServiceImpl implements CheckoutService {
                     .setCustomer(customer.getId())
                     .setSuccessUrl(successUrl)
                     .setCancelUrl(failureUrl)
+                    .setClientReferenceId(String.valueOf(checkoutRequest.getBookingId()))
                     .addLineItem(
                             SessionCreateParams.LineItem.builder()
                                     .setQuantity(1L)
                                     .setPriceData(
                                             SessionCreateParams.LineItem.PriceData.builder()
                                                     .setCurrency("inr")
-                                                    .setUnitAmount(booking.getAmount().multiply(BigDecimal.valueOf(100)).longValue())
+                                                    .setUnitAmount(checkoutRequest.getAmount().multiply(BigDecimal.valueOf(100)).longValue())
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName(property.getName() +" : "+ room.getType())
-                                                                    .setDescription("Booking ID: "+booking.getId())
+                                                                    .setName(checkoutRequest.getPropertyName() +" : "+ checkoutRequest.getRoomType())
+                                                                    .setDescription("Booking ID: "+checkoutRequest.getBookingId())
                                                                     .build()
                                                     )
                                                     .build()
@@ -70,10 +64,15 @@ public class CheckoutServiceImpl implements CheckoutService {
 
             Session session = Session.create(sessionParams);
 
-            booking.setPaymentSessionId(session.getId());
-            bookingRepository.save(booking);
+            // Create initial payment record
+            Payment payment = new Payment();
+            payment.setBookingId(checkoutRequest.getBookingId());
+            payment.setAmount(checkoutRequest.getAmount());
+            payment.setTransactionId(session.getId());
+            payment.setPaymentStatus(PaymentStatus.PENDING);
+            paymentRepository.save(payment);
 
-            log.info("Session created successfully for booking with ID: {}", booking.getId());
+            log.info("Session created successfully for booking with ID: {}", checkoutRequest.getBookingId());
             return session.getUrl();
 
         } catch (StripeException e) {

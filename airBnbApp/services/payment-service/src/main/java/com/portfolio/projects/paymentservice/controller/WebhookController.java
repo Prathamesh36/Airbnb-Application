@@ -1,6 +1,6 @@
-package com.portfolio.projects.booking_service.controller;
+package com.portfolio.projects.paymentservice.controller;
 
-import com.portfolio.projects.booking_service.service.BookingService;
+import com.portfolio.projects.paymentservice.service.PaymentService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WebhookController {
 
-    private final BookingService bookingService;
+    private final PaymentService paymentService;
 
     @Value("${stripe.webhook.secret}")
     private String endpointSecret;
@@ -23,7 +23,7 @@ public class WebhookController {
     public ResponseEntity<Void> capturePayments(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
         try {
             Event event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
-            bookingService.capturePayment(event);
+            paymentService.capturePayment(event);
             return ResponseEntity.noContent().build();
         } catch (SignatureVerificationException e) {
             throw new RuntimeException(e);

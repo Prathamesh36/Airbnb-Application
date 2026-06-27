@@ -29,13 +29,4 @@ CREATE TABLE booking_guest (
     CONSTRAINT fk_guest FOREIGN KEY (guest_id) REFERENCES guest(id)
 );
 
-CREATE TABLE payment (
-    id BIGSERIAL PRIMARY KEY,
-    transaction_id VARCHAR(255) UNIQUE NOT NULL,
-    payment_status VARCHAR(50) NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    booking_id BIGINT,
-    CONSTRAINT fk_payment_booking FOREIGN KEY (booking_id) REFERENCES booking(id)
-);
+

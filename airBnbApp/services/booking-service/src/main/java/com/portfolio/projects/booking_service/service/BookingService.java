@@ -4,7 +4,6 @@ import com.portfolio.projects.booking_service.dto.BookingDto;
 import com.portfolio.projects.booking_service.dto.BookingRequest;
 import com.portfolio.projects.booking_service.dto.GuestDto;
 import com.portfolio.projects.booking_service.dto.PropertyReportDto;
-import com.stripe.model.Event;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,7 +16,6 @@ public interface BookingService {
 
     String initiatePayments(Long bookingId);
 
-    void capturePayment(Event event);
 
     void cancelBooking(Long bookingId);
 

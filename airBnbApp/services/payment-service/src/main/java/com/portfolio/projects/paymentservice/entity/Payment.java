@@ -1,6 +1,6 @@
-package com.portfolio.projects.booking_service.entity;
+package com.portfolio.projects.paymentservice.entity;
 
-import com.portfolio.projects.booking_service.entity.enums.PaymentStatus;
+import com.portfolio.projects.paymentservice.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,12 +29,11 @@ public class Payment {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    private Long bookingId;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    private Booking booking;
 }
