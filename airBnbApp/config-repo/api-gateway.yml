@@ -1,0 +1,31 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: monolith-auth
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/auth/**
+        - id: monolith-bookings
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/bookings/**
+        - id: monolith-hotels
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/hotels/**
+        - id: monolith-admin
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/admin/**
+        - id: monolith-users
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/users/**
+        - id: monolith-webhook
+          uri: lb://airBnbApp
+          predicates:
+            - Path=/webhook/**
