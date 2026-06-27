@@ -25,6 +25,7 @@
         <module>services/auth-service</module>
         <module>services/user-service</module>
         <module>services/property-service</module>
+        <module>services/inventory-service</module>
     </modules>
 
     <properties>

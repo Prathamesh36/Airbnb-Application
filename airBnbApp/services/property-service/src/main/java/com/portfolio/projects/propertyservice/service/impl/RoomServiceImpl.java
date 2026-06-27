@@ -9,9 +9,13 @@ import com.portfolio.projects.propertyservice.exception.UnAuthorisedException;
 import com.portfolio.projects.propertyservice.repository.PropertyRepository;
 import com.portfolio.projects.propertyservice.repository.RoomRepository;
 
+import com.portfolio.projects.propertyservice.dto.RoomCreatedEvent;
 import com.portfolio.projects.propertyservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,6 +35,7 @@ public class RoomServiceImpl implements RoomService{
     private final PropertyRepository PropertyRepository;
 
     private final ModelMapper modelMapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public RoomDto createNewRoom(Long PropertyId, RoomDto roomDto) {
@@ -49,7 +54,14 @@ public class RoomServiceImpl implements RoomService{
         room = roomRepository.save(room);
 
         if (Property.getActive()) {
-            // inventoryService.initializeRoomForAYear(room);
+            RoomCreatedEvent event = RoomCreatedEvent.builder()
+                    .propertyId(Property.getId())
+                    .roomId(room.getId())
+                    .totalCount(room.getTotalCount())
+                    .basePrice(room.getBasePrice())
+                    .city(Property.getCity())
+                    .build();
+            kafkaTemplate.send("room-created-topic", event);
         }
 
         return modelMapper.map(room, RoomDto.class);
