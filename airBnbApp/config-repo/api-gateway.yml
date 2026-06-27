@@ -9,8 +9,8 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/auth/**
-        - id: monolith-bookings
-          uri: lb://airBnbApp
+        - id: booking-service
+          uri: lb://booking-service
           predicates:
             - Path=/bookings/**
         - id: property-service-public
@@ -29,7 +29,11 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/users/**
-        - id: monolith-webhook
-          uri: lb://airBnbApp
+        - id: booking-service-webhook
+          uri: lb://booking-service
           predicates:
             - Path=/webhook/**
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/search/**
