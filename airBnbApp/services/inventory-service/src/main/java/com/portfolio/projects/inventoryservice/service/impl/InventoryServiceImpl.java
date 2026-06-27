@@ -9,6 +9,7 @@ import com.portfolio.projects.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import com.portfolio.projects.inventoryservice.strategy.PricingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class InventoryServiceImpl implements InventoryService{
 
     private final InventoryRepository inventoryRepository;
     private final PropertyMinPriceRepository PropertyMinPriceRepository;
+    private final PricingService pricingService;
 
     @Override
     public void initializeRoomForAYear(RoomCreatedEvent room) {
@@ -97,5 +99,79 @@ public class InventoryServiceImpl implements InventoryService{
         inventoryRepository.updateInventory(roomId, updateInventoryRequestDto.getStartDate(),
                 updateInventoryRequestDto.getEndDate(), updateInventoryRequestDto.getClosed(),
                 updateInventoryRequestDto.getSurgeFactor());
+    }
+
+    @Override
+    @Transactional
+    public ReserveInventoryResponse reserveInventory(InventoryBookingDto bookingDto) {
+        log.info("Reserving inventory for room {} from {} to {}", bookingDto.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate());
+
+        List<Inventory> inventoryList = inventoryRepository.findAndLockAvailableInventory(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+
+        long daysCount = ChronoUnit.DAYS.between(bookingDto.getCheckInDate(), bookingDto.getCheckOutDate()) + 1;
+
+        if (inventoryList.size() != daysCount) {
+            throw new IllegalStateException("Room is not available for the requested dates");
+        }
+
+        inventoryRepository.initBooking(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+
+        BigDecimal priceForOneRoom = pricingService.calculateTotalPrice(inventoryList);
+        BigDecimal totalPrice = priceForOneRoom.multiply(BigDecimal.valueOf(bookingDto.getRoomsCount()));
+
+        return ReserveInventoryResponse.builder()
+                .priceForOneRoom(priceForOneRoom)
+                .totalPrice(totalPrice)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void confirmInventory(InventoryBookingDto bookingDto) {
+        log.info("Confirming inventory for room {} from {} to {}", bookingDto.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate());
+        
+        inventoryRepository.findAndLockReservedInventory(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+
+        inventoryRepository.confirmBooking(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void releaseInventory(InventoryBookingDto bookingDto) {
+        log.info("Releasing/cancelling inventory for room {} from {} to {}", bookingDto.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate());
+        
+        inventoryRepository.findAndLockReservedInventory(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+
+        inventoryRepository.cancelBooking(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
     }
 }

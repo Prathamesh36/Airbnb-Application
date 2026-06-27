@@ -16,4 +16,10 @@ public interface InventoryService {
     List<InventoryDto> getAllInventoryByRoom(Long roomId);
 
     void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto);
+
+    ReserveInventoryResponse reserveInventory(InventoryBookingDto bookingDto);
+
+    void confirmInventory(InventoryBookingDto bookingDto);
+
+    void releaseInventory(InventoryBookingDto bookingDto);
 }

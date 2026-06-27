@@ -12,7 +12,9 @@ import com.portfolio.projects.airBnbApp.repository.*;
 
 import com.portfolio.projects.airBnbApp.service.BookingService;
 import com.portfolio.projects.airBnbApp.service.CheckoutService;
-import com.portfolio.projects.airBnbApp.strategy.PricingService;
+import com.portfolio.projects.airBnbApp.client.InventoryClient;
+import com.portfolio.projects.airBnbApp.client.dto.InventoryBookingDto;
+import com.portfolio.projects.airBnbApp.client.dto.ReserveInventoryResponse;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.Refund;
@@ -48,9 +50,8 @@ public class BookingServiceImpl implements BookingService{
     private final BookingRepository bookingRepository;
     private final PropertyRepository PropertyRepository;
     private final RoomRepository roomRepository;
-    private final InventoryRepository inventoryRepository;
     private final CheckoutService checkoutService;
-    private final PricingService pricingService;
+    private final InventoryClient inventoryClient;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -68,21 +69,15 @@ public class BookingServiceImpl implements BookingService{
         Room room = roomRepository.findById(bookingRequest.getRoomId()).orElseThrow(() ->
                 new ResourceNotFoundException("Room not found with id: "+bookingRequest.getRoomId()));
 
-        List<Inventory> inventoryList = inventoryRepository.findAndLockAvailableInventory(room.getId(),
-                bookingRequest.getCheckInDate(), bookingRequest.getCheckOutDate(), bookingRequest.getRoomsCount());
-
-        long daysCount = ChronoUnit.DAYS.between(bookingRequest.getCheckInDate(), bookingRequest.getCheckOutDate())+1;
-
-        if (inventoryList.size() != daysCount) {
-            throw new IllegalStateException("Room is not available anymore");
-        }
-
-        // Reserve the room/ update the booked count of inventories
-        inventoryRepository.initBooking(room.getId(), bookingRequest.getCheckInDate(),
-                bookingRequest.getCheckOutDate(), bookingRequest.getRoomsCount());
-
-        BigDecimal priceForOneRoom = pricingService.calculateTotalPrice(inventoryList);
-        BigDecimal totalPrice = priceForOneRoom.multiply(BigDecimal.valueOf(bookingRequest.getRoomsCount()));
+        InventoryBookingDto inventoryBookingDto = InventoryBookingDto.builder()
+                .roomId(room.getId())
+                .checkInDate(bookingRequest.getCheckInDate())
+                .checkOutDate(bookingRequest.getCheckOutDate())
+                .roomsCount(bookingRequest.getRoomsCount())
+                .build();
+                
+        ReserveInventoryResponse response = inventoryClient.reserveInventory(inventoryBookingDto);
+        BigDecimal totalPrice = response.getTotalPrice();
 
         Booking booking = Booking.builder()
                 .bookingStatus(BookingStatus.RESERVED)
@@ -171,11 +166,13 @@ public class BookingServiceImpl implements BookingService{
             booking.setBookingStatus(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
 
-            inventoryRepository.findAndLockReservedInventory(booking.getRoom().getId(), booking.getCheckInDate(),
-                    booking.getCheckOutDate(), booking.getRoomsCount());
-
-            inventoryRepository.confirmBooking(booking.getRoom().getId(), booking.getCheckInDate(),
-                    booking.getCheckOutDate(), booking.getRoomsCount());
+            InventoryBookingDto inventoryBookingDto = InventoryBookingDto.builder()
+                    .roomId(booking.getRoom().getId())
+                    .checkInDate(booking.getCheckInDate())
+                    .checkOutDate(booking.getCheckOutDate())
+                    .roomsCount(booking.getRoomsCount())
+                    .build();
+            inventoryClient.confirmInventory(inventoryBookingDto);
 
             log.info("Successfully confirmed the booking for Booking ID: {}", booking.getId());
         } else {
@@ -201,11 +198,13 @@ public class BookingServiceImpl implements BookingService{
         booking.setBookingStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
 
-        inventoryRepository.findAndLockReservedInventory(booking.getRoom().getId(), booking.getCheckInDate(),
-                booking.getCheckOutDate(), booking.getRoomsCount());
-
-        inventoryRepository.cancelBooking(booking.getRoom().getId(), booking.getCheckInDate(),
-                booking.getCheckOutDate(), booking.getRoomsCount());
+        InventoryBookingDto inventoryBookingDto = InventoryBookingDto.builder()
+                .roomId(booking.getRoom().getId())
+                .checkInDate(booking.getCheckInDate())
+                .checkOutDate(booking.getCheckOutDate())
+                .roomsCount(booking.getRoomsCount())
+                .build();
+        inventoryClient.releaseInventory(inventoryBookingDto);
 
         // handle the refund
 
