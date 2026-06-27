@@ -18,7 +18,6 @@
     <description>AirBnb Microservices Application Parent POM</description>
 
     <modules>
-        <module>monolith</module>
         <module>infrastructure/eureka-server</module>
         <module>infrastructure/config-server</module>
         <module>infrastructure/api-gateway</module>

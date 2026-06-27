@@ -21,16 +21,12 @@ spring:
           uri: lb://property-service
           predicates:
             - Path=/admin/properties/**
-        - id: monolith-admin
-          uri: lb://airBnbApp
-          predicates:
-            - Path=/admin/**
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/users/**
-        - id: booking-service-webhook
-          uri: lb://booking-service
+        - id: payment-service-webhook
+          uri: lb://payment-service
           predicates:
             - Path=/webhook/**
         - id: search-service
