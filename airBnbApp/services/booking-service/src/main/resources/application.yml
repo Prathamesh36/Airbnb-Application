@@ -5,9 +5,9 @@ spring:
   application:
     name: booking-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/airbnb?currentSchema=booking
-    username: postgres
-    password: password
+    url: jdbc:postgresql://localhost:5432/booking_service_db
+    username: root
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
