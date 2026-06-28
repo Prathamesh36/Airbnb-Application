@@ -1,31 +1,27 @@
-server:
-  port: 8083
-
 spring:
+  application:
+    name: inventory-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
   datasource:
     url: jdbc:postgresql://localhost:5432/inventory_service_db
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    username: root
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: true
   flyway:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
-    create-schemas: true
-    schemas: inventory
-    default-schema: inventory
-
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9094
     consumer:
       group-id: inventory-group
       auto-offset-reset: earliest
@@ -38,12 +34,14 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+# Fallback values
+server:
+  port: 8085
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
 
 jwt:
-  secretKey: ${JWT_SECRET_KEY:mE+rFLi/VKK35G5GN08F59yCuFnFKvhg/axAzqLAJbw=}
+  secretKey: "7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R"
