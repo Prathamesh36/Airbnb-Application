@@ -8,6 +8,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class UserApplication {
     public static void main(String[] args) {
-        SpringApplication.run(UserApplication.class, args);
+        var context = SpringApplication.run(UserApplication.class, args);
+        System.out.println("=========================================");
+        System.out.println("URL: " + context.getEnvironment().getProperty("spring.datasource.url"));
+        System.out.println("=========================================");
     }
 }

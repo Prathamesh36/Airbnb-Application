@@ -7,6 +7,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/user_service_db
     username: root
     password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 # Fallback values
 server:

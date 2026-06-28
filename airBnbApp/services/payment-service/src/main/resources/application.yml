@@ -4,12 +4,15 @@ server:
 spring:
   application:
     name: payment-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
   datasource:
     url: jdbc:postgresql://localhost:5432/payment_service_db
     username: root
     password: root
     driver-class-name: org.postgresql.Driver
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
     show-sql: true
@@ -20,11 +23,8 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
-    schemas: payment
-    default-schema: payment
-    create-schemas: true
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
