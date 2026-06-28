@@ -1,5 +1,9 @@
+version: '3.8'
+
 services:
-  # Relational Database
+  # ---------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------
   postgres:
     image: postgres:16-alpine
     container_name: airbnb-postgres
@@ -11,28 +15,279 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d airbnb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Distributed Cache / Rate Limiter
   redis:
     image: redis:7-alpine
     container_name: airbnb-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Message Broker (Kafka with KRaft - No Zookeeper)
   kafka:
     image: apache/kafka:latest
     container_name: airbnb-kafka
     ports:
       - "9094:9094"
     environment:
-      - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=controller,broker
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+
+  # ---------------------------------------------
+  # Core Infrastructure Services
+  # ---------------------------------------------
+  eureka-server:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=infrastructure/eureka-server
+    container_name: airbnb-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  config-server:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=infrastructure/config-server
+    container_name: airbnb-config
+    ports:
+      - "8888:8888"
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS=file:/config-repo
+    volumes:
+      - ./config-repo:/config-repo
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=infrastructure/api-gateway
+    container_name: airbnb-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  # ---------------------------------------------
+  # Business Microservices
+  # ---------------------------------------------
+  auth-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/auth-service
+    container_name: airbnb-auth
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=auth
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  user-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/user-service
+    container_name: airbnb-user
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=users
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  property-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/property-service
+    container_name: airbnb-property
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=property
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  inventory-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/inventory-service
+    container_name: airbnb-inventory
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=inventory
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  booking-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/booking-service
+    container_name: airbnb-booking
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=booking
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/payment-service
+    container_name: airbnb-payment
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/airbnb?currentSchema=payment
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  search-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/search-service
+    container_name: airbnb-search
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      args:
+        - MODULE_PATH=services/notification-service
+    container_name: airbnb-notification
+    environment:
+      - JAVA_OPTS=-Xmx256m -Xms128m
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
 
 volumes:
   postgres_data:
