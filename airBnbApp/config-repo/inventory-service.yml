@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/airbnb?currentSchema=inventory
+    url: jdbc:postgresql://localhost:5432/inventory_service_db
     username: myuser
     password: mypassword
     driver-class-name: org.postgresql.Driver

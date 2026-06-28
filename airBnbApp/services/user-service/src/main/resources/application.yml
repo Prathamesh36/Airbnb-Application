@@ -4,7 +4,7 @@ spring:
   config:
     import: "optional:configserver:http://localhost:8888"
   datasource:
-    url: jdbc:postgresql://localhost:5432/airbnb?currentSchema=users
+    url: jdbc:postgresql://localhost:5432/user_service_db
     username: root
     password: root
 
