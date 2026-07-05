@@ -1,6 +1,6 @@
 package com.portfolio.projects.paymentservice.controller;
 
-import com.portfolio.projects.paymentservice.dto.CheckoutRequest;
+import com.portfolio.projects.common.dto.CheckoutRequest;
 import com.portfolio.projects.paymentservice.service.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

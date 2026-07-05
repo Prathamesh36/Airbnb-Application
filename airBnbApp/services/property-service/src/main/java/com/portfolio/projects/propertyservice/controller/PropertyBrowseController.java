@@ -1,7 +1,7 @@
 package com.portfolio.projects.propertyservice.controller;
 
-import com.portfolio.projects.propertyservice.dto.PropertyDto;
-import com.portfolio.projects.propertyservice.dto.PropertyInfoDto;
+import com.portfolio.projects.common.dto.PropertyDto;
+import com.portfolio.projects.common.dto.PropertyInfoDto;
 import com.portfolio.projects.propertyservice.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

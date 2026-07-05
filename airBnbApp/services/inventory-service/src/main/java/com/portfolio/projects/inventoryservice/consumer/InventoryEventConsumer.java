@@ -1,6 +1,6 @@
 package com.portfolio.projects.inventoryservice.consumer;
 
-import com.portfolio.projects.inventoryservice.dto.RoomCreatedEvent;
+import com.portfolio.projects.common.dto.RoomCreatedEvent;
 import com.portfolio.projects.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

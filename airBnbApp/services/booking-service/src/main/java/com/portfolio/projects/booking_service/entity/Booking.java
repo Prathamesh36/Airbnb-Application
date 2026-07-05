@@ -1,6 +1,6 @@
 package com.portfolio.projects.booking_service.entity;
 
-import com.portfolio.projects.booking_service.entity.enums.BookingStatus;
+import com.portfolio.projects.common.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

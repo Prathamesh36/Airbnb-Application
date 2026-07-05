@@ -1,11 +1,11 @@
 package com.portfolio.projects.booking_service.service.impl;
 
-import com.portfolio.projects.booking_service.dto.BookingDto;
-import com.portfolio.projects.booking_service.dto.BookingRequest;
-import com.portfolio.projects.booking_service.dto.GuestDto;
-import com.portfolio.projects.booking_service.dto.PropertyReportDto;
+import com.portfolio.projects.common.dto.BookingDto;
+import com.portfolio.projects.common.dto.BookingRequest;
+import com.portfolio.projects.common.dto.GuestDto;
+import com.portfolio.projects.common.dto.PropertyReportDto;
 import com.portfolio.projects.booking_service.entity.*;
-import com.portfolio.projects.booking_service.entity.enums.BookingStatus;
+import com.portfolio.projects.common.enums.BookingStatus;
 import com.portfolio.projects.booking_service.exception.ResourceNotFoundException;
 import com.portfolio.projects.booking_service.exception.UnAuthorisedException;
 import com.portfolio.projects.booking_service.repository.*;

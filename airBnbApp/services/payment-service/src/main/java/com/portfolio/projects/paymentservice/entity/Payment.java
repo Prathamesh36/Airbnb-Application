@@ -1,6 +1,6 @@
 package com.portfolio.projects.paymentservice.entity;
 
-import com.portfolio.projects.paymentservice.entity.enums.PaymentStatus;
+import com.portfolio.projects.common.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

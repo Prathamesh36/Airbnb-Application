@@ -1,6 +1,6 @@
 package com.portfolio.projects.inventoryservice.service;
 
-import com.portfolio.projects.inventoryservice.dto.*;
+import com.portfolio.projects.common.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

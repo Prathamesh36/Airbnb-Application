@@ -1,10 +1,10 @@
 package com.portfolio.projects.authservice.controller;
 
-import com.portfolio.projects.authservice.dto.LoginDto;
-import com.portfolio.projects.authservice.dto.LoginResponseDto;
-import com.portfolio.projects.authservice.dto.SignUpRequestDto;
-import com.portfolio.projects.authservice.dto.UserDto;
-import com.portfolio.projects.authservice.security.AuthService;
+import com.portfolio.projects.common.dto.LoginDto;
+import com.portfolio.projects.common.dto.LoginResponseDto;
+import com.portfolio.projects.common.dto.SignUpRequestDto;
+import com.portfolio.projects.common.dto.UserDto;
+import com.portfolio.projects.authservice.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

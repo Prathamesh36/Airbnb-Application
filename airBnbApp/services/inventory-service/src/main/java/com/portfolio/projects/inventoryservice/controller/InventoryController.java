@@ -1,7 +1,7 @@
 package com.portfolio.projects.inventoryservice.controller;
 
-import com.portfolio.projects.inventoryservice.dto.InventoryDto;
-import com.portfolio.projects.inventoryservice.dto.UpdateInventoryRequestDto;
+import com.portfolio.projects.common.dto.InventoryDto;
+import com.portfolio.projects.common.dto.UpdateInventoryRequestDto;
 import com.portfolio.projects.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

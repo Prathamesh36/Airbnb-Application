@@ -14,7 +14,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -39,3 +39,6 @@ stripe:
     secret: "whsec_..."
   secret:
     key: "sk_test_..."
+
+jwt:
+  secretKey: "7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R"

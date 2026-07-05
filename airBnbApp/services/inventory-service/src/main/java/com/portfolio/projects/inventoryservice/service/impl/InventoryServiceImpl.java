@@ -1,6 +1,6 @@
 package com.portfolio.projects.inventoryservice.service.impl;
 
-import com.portfolio.projects.inventoryservice.dto.*;
+import com.portfolio.projects.common.dto.*;
 import com.portfolio.projects.inventoryservice.entity.Inventory;
 import com.portfolio.projects.inventoryservice.exception.ResourceNotFoundException;
 import com.portfolio.projects.inventoryservice.repository.PropertyMinPriceRepository;

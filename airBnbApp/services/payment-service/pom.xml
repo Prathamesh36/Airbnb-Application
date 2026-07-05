@@ -16,6 +16,11 @@
     <description>AirBnb Payment Service</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.portfolio.projects</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

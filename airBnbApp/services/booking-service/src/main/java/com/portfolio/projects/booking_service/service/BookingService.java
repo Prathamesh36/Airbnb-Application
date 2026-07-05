@@ -1,9 +1,9 @@
 package com.portfolio.projects.booking_service.service;
 
-import com.portfolio.projects.booking_service.dto.BookingDto;
-import com.portfolio.projects.booking_service.dto.BookingRequest;
-import com.portfolio.projects.booking_service.dto.GuestDto;
-import com.portfolio.projects.booking_service.dto.PropertyReportDto;
+import com.portfolio.projects.common.dto.BookingDto;
+import com.portfolio.projects.common.dto.BookingRequest;
+import com.portfolio.projects.common.dto.GuestDto;
+import com.portfolio.projects.common.dto.PropertyReportDto;
 
 import java.time.LocalDate;
 import java.util.List;

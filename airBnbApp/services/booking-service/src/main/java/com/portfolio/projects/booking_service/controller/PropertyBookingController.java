@@ -1,8 +1,8 @@
 package com.portfolio.projects.booking_service.controller;
 
-import com.portfolio.projects.booking_service.dto.BookingDto;
-import com.portfolio.projects.booking_service.dto.BookingRequest;
-import com.portfolio.projects.booking_service.dto.GuestDto;
+import com.portfolio.projects.common.dto.BookingDto;
+import com.portfolio.projects.common.dto.BookingRequest;
+import com.portfolio.projects.common.dto.GuestDto;
 import com.portfolio.projects.booking_service.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

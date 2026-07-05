@@ -1,9 +1,9 @@
 package com.portfolio.projects.propertyservice.service.impl;
 
-import com.portfolio.projects.propertyservice.dto.PropertyDto;
-import com.portfolio.projects.propertyservice.dto.PropertyInfoDto;
-import com.portfolio.projects.propertyservice.dto.PropertyInfoRequestDto;
-import com.portfolio.projects.propertyservice.dto.RoomDto;
+import com.portfolio.projects.common.dto.PropertyDto;
+import com.portfolio.projects.common.dto.PropertyInfoDto;
+import com.portfolio.projects.common.dto.PropertyInfoRequestDto;
+import com.portfolio.projects.common.dto.RoomDto;
 import com.portfolio.projects.propertyservice.entity.Property;
 import com.portfolio.projects.propertyservice.entity.Room;
 import com.portfolio.projects.propertyservice.entity.User;

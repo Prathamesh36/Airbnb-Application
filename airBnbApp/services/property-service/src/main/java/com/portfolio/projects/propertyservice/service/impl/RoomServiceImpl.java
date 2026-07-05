@@ -1,6 +1,6 @@
 package com.portfolio.projects.propertyservice.service.impl;
 
-import com.portfolio.projects.propertyservice.dto.RoomDto;
+import com.portfolio.projects.common.dto.RoomDto;
 import com.portfolio.projects.propertyservice.entity.Property;
 import com.portfolio.projects.propertyservice.entity.Room;
 import com.portfolio.projects.propertyservice.entity.User;
@@ -9,7 +9,7 @@ import com.portfolio.projects.propertyservice.exception.UnAuthorisedException;
 import com.portfolio.projects.propertyservice.repository.PropertyRepository;
 import com.portfolio.projects.propertyservice.repository.RoomRepository;
 
-import com.portfolio.projects.propertyservice.dto.RoomCreatedEvent;
+import com.portfolio.projects.common.dto.RoomCreatedEvent;
 import com.portfolio.projects.propertyservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.portfolio.projects.booking_service.consumer;
 
 import com.portfolio.projects.booking_service.entity.Booking;
-import com.portfolio.projects.booking_service.entity.enums.BookingStatus;
+import com.portfolio.projects.common.enums.BookingStatus;
 import com.portfolio.projects.booking_service.exception.ResourceNotFoundException;
 import com.portfolio.projects.booking_service.repository.BookingRepository;
 import com.portfolio.projects.booking_service.client.InventoryClient;

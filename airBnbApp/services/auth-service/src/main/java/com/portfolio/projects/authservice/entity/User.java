@@ -1,7 +1,7 @@
 package com.portfolio.projects.authservice.entity;
 
-import com.portfolio.projects.authservice.entity.enums.Gender;
-import com.portfolio.projects.authservice.entity.enums.Role;
+import com.portfolio.projects.common.enums.Gender;
+import com.portfolio.projects.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.portfolio.projects.propertyservice.service;
 
-import com.portfolio.projects.propertyservice.dto.RoomDto;
+import com.portfolio.projects.common.dto.RoomDto;
 
 import java.util.List;
 

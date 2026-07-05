@@ -38,3 +38,6 @@ stripe:
     key: ${STRIPE_SECRET_KEY:sk_test_placeholder}
   webhook:
     secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+
+jwt:
+  secretKey: "7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R"

@@ -1,7 +1,7 @@
 package com.portfolio.projects.userservice.service.impl;
 
-import com.portfolio.projects.userservice.dto.ProfileUpdateRequestDto;
-import com.portfolio.projects.userservice.dto.UserDto;
+import com.portfolio.projects.common.dto.ProfileUpdateRequestDto;
+import com.portfolio.projects.common.dto.UserDto;
 import com.portfolio.projects.userservice.entity.User;
 import com.portfolio.projects.userservice.exception.ResourceNotFoundException;
 import com.portfolio.projects.userservice.repository.UserRepository;

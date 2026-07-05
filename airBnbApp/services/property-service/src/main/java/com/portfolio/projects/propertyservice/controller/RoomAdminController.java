@@ -1,6 +1,6 @@
 package com.portfolio.projects.propertyservice.controller;
 
-import com.portfolio.projects.propertyservice.dto.RoomDto;
+import com.portfolio.projects.common.dto.RoomDto;
 import com.portfolio.projects.propertyservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

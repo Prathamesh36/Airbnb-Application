@@ -1,9 +1,9 @@
 package com.portfolio.projects.propertyservice.service;
 
 
-import com.portfolio.projects.propertyservice.dto.PropertyDto;
-import com.portfolio.projects.propertyservice.dto.PropertyInfoDto;
-import com.portfolio.projects.propertyservice.dto.PropertyInfoRequestDto;
+import com.portfolio.projects.common.dto.PropertyDto;
+import com.portfolio.projects.common.dto.PropertyInfoDto;
+import com.portfolio.projects.common.dto.PropertyInfoRequestDto;
 import com.portfolio.projects.propertyservice.entity.Property;
 
 import java.util.List;

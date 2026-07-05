@@ -1,7 +1,7 @@
 package com.portfolio.projects.paymentservice.service;
 
 import com.portfolio.projects.paymentservice.entity.Payment;
-import com.portfolio.projects.paymentservice.entity.enums.PaymentStatus;
+import com.portfolio.projects.common.enums.PaymentStatus;
 import com.portfolio.projects.paymentservice.repository.PaymentRepository;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;

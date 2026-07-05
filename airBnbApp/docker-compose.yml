@@ -123,8 +123,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -146,8 +148,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -169,8 +173,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/property_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -192,8 +198,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -215,8 +223,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/booking_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -238,8 +248,10 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/payment_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -263,7 +275,7 @@ services:
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -285,7 +297,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - JWT_SECRETKEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
     depends_on:
       eureka-server:
         condition: service_healthy

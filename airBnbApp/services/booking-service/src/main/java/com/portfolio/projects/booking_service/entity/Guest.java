@@ -1,6 +1,6 @@
 package com.portfolio.projects.booking_service.entity;
 
-import com.portfolio.projects.booking_service.entity.enums.Gender;
+import com.portfolio.projects.common.enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

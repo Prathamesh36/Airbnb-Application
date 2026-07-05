@@ -15,6 +15,11 @@
     <description>Notification Service for AirBnb</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.portfolio.projects</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

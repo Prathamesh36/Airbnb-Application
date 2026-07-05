@@ -1,8 +1,8 @@
 package com.portfolio.projects.paymentservice.service.impl;
 
-import com.portfolio.projects.paymentservice.dto.CheckoutRequest;
+import com.portfolio.projects.common.dto.CheckoutRequest;
 import com.portfolio.projects.paymentservice.entity.Payment;
-import com.portfolio.projects.paymentservice.entity.enums.PaymentStatus;
+import com.portfolio.projects.common.enums.PaymentStatus;
 import com.portfolio.projects.paymentservice.repository.PaymentRepository;
 import com.portfolio.projects.paymentservice.service.CheckoutService;
 import com.stripe.exception.StripeException;

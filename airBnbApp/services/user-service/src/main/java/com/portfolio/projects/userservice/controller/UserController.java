@@ -1,8 +1,8 @@
 package com.portfolio.projects.userservice.controller;
 
 
-import com.portfolio.projects.userservice.dto.ProfileUpdateRequestDto;
-import com.portfolio.projects.userservice.dto.UserDto;
+import com.portfolio.projects.common.dto.ProfileUpdateRequestDto;
+import com.portfolio.projects.common.dto.UserDto;
 
 import com.portfolio.projects.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
