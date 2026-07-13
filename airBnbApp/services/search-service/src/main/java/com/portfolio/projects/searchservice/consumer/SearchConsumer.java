@@ -20,10 +20,9 @@ public class SearchConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "property-created-topic", groupId = "search-service-group")
-    public void consumePropertyCreatedEvent(String message) {
-        log.info("Consumed property-created-topic message: {}", message);
+    public void consumePropertyCreatedEvent(PropertySearchEvent event) {
+        log.info("Consumed property-created-topic event for property: {}", event.getPropertyId());
         try {
-            PropertySearchEvent event = objectMapper.readValue(message, PropertySearchEvent.class);
             PropertyIndex propertyIndex = new PropertyIndex();
             propertyIndex.setPropertyId(event.getPropertyId());
             propertyIndex.setName(event.getName());

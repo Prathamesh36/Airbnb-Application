@@ -138,8 +138,13 @@ public class PropertyServiceImpl implements PropertyService{
                 .active(Property.getActive())
                 .build();
         
-        kafkaTemplate.send("property-created-topic", searchEvent);
-
+        try {
+            kafkaTemplate.send("property-created-topic", searchEvent).get();
+            log.info("Successfully sent property-created-topic event to Kafka for property: {}", Property.getId());
+        } catch (Exception e) {
+            log.error("Failed to send Kafka message for property search event", e);
+            throw new RuntimeException("Failed to send Kafka event", e);
+        }
         // assuming only do it once
         for(Room room: Property.getRooms()) {
             // inventoryService.initializeRoomForAYear(room);
