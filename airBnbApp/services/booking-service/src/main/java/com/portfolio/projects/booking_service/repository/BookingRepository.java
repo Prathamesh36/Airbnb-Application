@@ -17,4 +17,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByUserId(Long userId);
 
     Optional<Booking> findByPaymentSessionId(String sessionId);
+
+    List<Booking> findByBookingStatusInAndCreatedAtBefore(List<com.portfolio.projects.common.enums.BookingStatus> statuses, LocalDateTime time);
 }

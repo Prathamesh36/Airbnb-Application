@@ -1,6 +1,6 @@
 package com.portfolio.projects.common.enums;
 
-public enum Role {
+public enum  Role {
     GUEST,
     HOTEL_MANAGER,
 

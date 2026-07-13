@@ -119,12 +119,16 @@ public class InventoryServiceImpl implements InventoryService{
             throw new IllegalStateException("Room is not available for the requested dates");
         }
 
-        inventoryRepository.initBooking(
+        int updatedRows = inventoryRepository.initBooking(
                 bookingDto.getRoomId(),
                 bookingDto.getCheckInDate(),
                 bookingDto.getCheckOutDate(),
                 bookingDto.getRoomsCount()
         );
+        
+        if (updatedRows != daysCount) {
+            throw new IllegalStateException("Database rejected inventory reservation due to concurrent booking");
+        }
 
         BigDecimal priceForOneRoom = pricingService.calculateTotalPrice(inventoryList);
         BigDecimal totalPrice = priceForOneRoom.multiply(BigDecimal.valueOf(bookingDto.getRoomsCount()));
@@ -147,18 +151,48 @@ public class InventoryServiceImpl implements InventoryService{
                 bookingDto.getRoomsCount()
         );
 
-        inventoryRepository.confirmBooking(
+        int updatedRows = inventoryRepository.confirmBooking(
                 bookingDto.getRoomId(),
                 bookingDto.getCheckInDate(),
                 bookingDto.getCheckOutDate(),
                 bookingDto.getRoomsCount()
         );
+        
+        long daysCount = ChronoUnit.DAYS.between(bookingDto.getCheckInDate(), bookingDto.getCheckOutDate()) + 1;
+        if (updatedRows != daysCount) {
+            throw new IllegalStateException("Database rejected inventory confirmation");
+        }
     }
 
     @Override
     @Transactional
     public void releaseInventory(InventoryBookingDto bookingDto) {
         log.info("Releasing/cancelling inventory for room {} from {} to {}", bookingDto.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate());
+        
+        inventoryRepository.findAndLockBookedInventory(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+
+        int updatedRows = inventoryRepository.cancelBooking(
+                bookingDto.getRoomId(),
+                bookingDto.getCheckInDate(),
+                bookingDto.getCheckOutDate(),
+                bookingDto.getRoomsCount()
+        );
+        
+        long daysCount = ChronoUnit.DAYS.between(bookingDto.getCheckInDate(), bookingDto.getCheckOutDate()) + 1;
+        if (updatedRows != daysCount) {
+            log.warn("Database updated 0 rows for cancelBooking. It may have already been cancelled.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unreserveInventory(InventoryBookingDto bookingDto) {
+        log.info("Unreserving inventory (releasing from EXPIRED booking) for room {} from {} to {}", bookingDto.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate());
         
         inventoryRepository.findAndLockReservedInventory(
                 bookingDto.getRoomId(),
@@ -167,11 +201,16 @@ public class InventoryServiceImpl implements InventoryService{
                 bookingDto.getRoomsCount()
         );
 
-        inventoryRepository.cancelBooking(
+        int updatedRows = inventoryRepository.unreserveBooking(
                 bookingDto.getRoomId(),
                 bookingDto.getCheckInDate(),
                 bookingDto.getCheckOutDate(),
                 bookingDto.getRoomsCount()
         );
+        
+        long daysCount = ChronoUnit.DAYS.between(bookingDto.getCheckInDate(), bookingDto.getCheckOutDate()) + 1;
+        if (updatedRows != daysCount) {
+            log.warn("Database updated 0 rows for unreserveBooking. It may have already been unreserved.");
+        }
     }
 }

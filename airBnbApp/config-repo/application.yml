@@ -20,10 +20,10 @@ jwt:
   secretKey: ${JWT_SECRET_KEY:mE+rFLi/VKK35G5GN08F59yCuFnFKvhg/axAzqLAJbw=}
 
 stripe:
-  api:
-    key: ${STRIPE_SECRET_KEY}
+  secret:
+    key: ${STRIPE_SECRET_KEY:sk_test_12345}
   webhook:
-    secret: ${STRIPE_WEBHOOK_SECRET}
+    secret: ${STRIPE_WEBHOOK_SECRET:whsec_12345}
 
 eureka:
   client:

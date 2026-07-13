@@ -21,7 +21,7 @@ public class InternalPropertyController {
 
     @GetMapping("/properties/{propertyId}")
     public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long propertyId) {
-        return ResponseEntity.ok(propertyService.getPropertyById(propertyId));
+        return ResponseEntity.ok(propertyService.getInternalPropertyById(propertyId));
     }
 
     @GetMapping("/rooms/{roomId}")

@@ -3,8 +3,7 @@ package com.portfolio.projects.propertyservice.service.impl;
 import com.portfolio.projects.common.dto.RoomDto;
 import com.portfolio.projects.propertyservice.entity.Property;
 import com.portfolio.projects.propertyservice.entity.Room;
-import com.portfolio.projects.propertyservice.entity.User;
-import com.portfolio.projects.propertyservice.exception.ResourceNotFoundException;
+import com.portfolio.projects.common.exception.ResourceNotFoundException;
 import com.portfolio.projects.propertyservice.exception.UnAuthorisedException;
 import com.portfolio.projects.propertyservice.repository.PropertyRepository;
 import com.portfolio.projects.propertyservice.repository.RoomRepository;
@@ -16,15 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.portfolio.projects.propertyservice.util.AppUtils.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
@@ -37,16 +32,20 @@ public class RoomServiceImpl implements RoomService{
     private final ModelMapper modelMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Override
-    public RoomDto createNewRoom(Long PropertyId, RoomDto roomDto) {
-        log.info("Creating a new room in Property with ID: {}", PropertyId);
-        Property Property = PropertyRepository
-                .findById(PropertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+PropertyId));
+    private Long getLoggedInUserId() {
+        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!user.equals(Property.getOwner())) {
-            throw new UnAuthorisedException("This user does not own this Property with id: "+PropertyId);
+    @Override
+    public RoomDto createNewRoom(Long propertyId, RoomDto roomDto) {
+        log.info("Creating a new room in Property with ID: {}", propertyId);
+        Property Property = PropertyRepository
+                .findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+propertyId));
+
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(Property.getOwnerId())) {
+            throw new UnAuthorisedException("This user does not own this Property with id: "+propertyId);
         }
 
         Room room = modelMapper.map(roomDto, Room.class);
@@ -68,15 +67,15 @@ public class RoomServiceImpl implements RoomService{
     }
 
     @Override
-    public List<RoomDto> getAllRoomsInProperty(Long PropertyId) {
-        log.info("Getting all rooms in Property with ID: {}", PropertyId);
+    public List<RoomDto> getAllRoomsInProperty(Long propertyId) {
+        log.info("Getting all rooms in Property with ID: {}", propertyId);
         Property Property = PropertyRepository
-                .findById(PropertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+PropertyId));
+                .findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+propertyId));
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!user.equals(Property.getOwner())) {
-            throw new UnAuthorisedException("This user does not own this Property with id: "+PropertyId);
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(Property.getOwnerId())) {
+            throw new UnAuthorisedException("This user does not own this Property with id: "+propertyId);
         }
 
         return Property.getRooms()
@@ -102,8 +101,8 @@ public class RoomServiceImpl implements RoomService{
                 .findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: "+roomId));
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!user.equals(room.getProperty().getOwner())) {
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(room.getProperty().getOwnerId())) {
             throw new UnAuthorisedException("This user does not own this room with id: "+roomId);
         }
 
@@ -113,15 +112,15 @@ public class RoomServiceImpl implements RoomService{
 
     @Override
     @Transactional
-    public RoomDto updateRoomById(Long PropertyId, Long roomId, RoomDto roomDto) {
+    public RoomDto updateRoomById(Long propertyId, Long roomId, RoomDto roomDto) {
         log.info("Updating the room with ID: {}", roomId);
         Property Property = PropertyRepository
-                .findById(PropertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+PropertyId));
+                .findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+propertyId));
 
-        User user = getCurrentUser();
-        if(!user.equals(Property.getOwner())) {
-            throw new UnAuthorisedException("This user does not own this Property with id: "+PropertyId);
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(Property.getOwnerId())) {
+            throw new UnAuthorisedException("This user does not own this Property with id: "+propertyId);
         }
 
         Room room = roomRepository.findById(roomId)

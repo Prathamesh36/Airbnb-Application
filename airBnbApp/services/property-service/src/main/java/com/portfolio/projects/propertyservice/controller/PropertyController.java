@@ -27,27 +27,27 @@ public class PropertyController {
         return new ResponseEntity<>(Property, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{PropertyId}")
-    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long PropertyId) {
-        PropertyDto PropertyDto = PropertyService.getPropertyById(PropertyId);
+    @GetMapping("/{propertyId}")
+    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long propertyId) {
+        PropertyDto PropertyDto = PropertyService.getPropertyById(propertyId);
         return ResponseEntity.ok(PropertyDto);
     }
 
-    @PutMapping("/{PropertyId}")
-    public ResponseEntity<PropertyDto> updatePropertyById(@PathVariable Long PropertyId, @RequestBody PropertyDto PropertyDto) {
-        PropertyDto Property = PropertyService.updatePropertyById(PropertyId, PropertyDto);
+    @PutMapping("/{propertyId}")
+    public ResponseEntity<PropertyDto> updatePropertyById(@PathVariable Long propertyId, @RequestBody PropertyDto PropertyDto) {
+        PropertyDto Property = PropertyService.updatePropertyById(propertyId, PropertyDto);
         return ResponseEntity.ok(Property);
     }
 
-    @DeleteMapping("/{PropertyId}")
-    public ResponseEntity<Void> deletePropertyById(@PathVariable Long PropertyId) {
-        PropertyService.deletePropertyById(PropertyId);
+    @DeleteMapping("/{propertyId}")
+    public ResponseEntity<Void> deletePropertyById(@PathVariable Long propertyId) {
+        PropertyService.deletePropertyById(propertyId);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{PropertyId}/activate")
-    public ResponseEntity<Void> activateProperty(@PathVariable Long PropertyId) {
-        PropertyService.activateProperty(PropertyId);
+    @PatchMapping("/{propertyId}/activate")
+    public ResponseEntity<Void> activateProperty(@PathVariable Long propertyId) {
+        PropertyService.activateProperty(propertyId);
         return ResponseEntity.noContent().build();
     }
 

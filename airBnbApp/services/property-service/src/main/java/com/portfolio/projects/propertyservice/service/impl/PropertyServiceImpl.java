@@ -4,10 +4,10 @@ import com.portfolio.projects.common.dto.PropertyDto;
 import com.portfolio.projects.common.dto.PropertyInfoDto;
 import com.portfolio.projects.common.dto.PropertyInfoRequestDto;
 import com.portfolio.projects.common.dto.RoomDto;
+import com.portfolio.projects.common.dto.PropertySearchEvent;
 import com.portfolio.projects.propertyservice.entity.Property;
 import com.portfolio.projects.propertyservice.entity.Room;
-import com.portfolio.projects.propertyservice.entity.User;
-import com.portfolio.projects.propertyservice.exception.ResourceNotFoundException;
+import com.portfolio.projects.common.exception.ResourceNotFoundException;
 import com.portfolio.projects.propertyservice.exception.UnAuthorisedException;
 import com.portfolio.projects.propertyservice.repository.PropertyRepository;
 import com.portfolio.projects.propertyservice.repository.RoomRepository;
@@ -16,15 +16,13 @@ import com.portfolio.projects.propertyservice.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.portfolio.projects.propertyservice.util.AppUtils.getCurrentUser;
 
 @Service
 @Slf4j
@@ -33,8 +31,12 @@ public class PropertyServiceImpl implements PropertyService{
 
     private final PropertyRepository PropertyRepository;
     private final ModelMapper modelMapper;
-
     private final RoomRepository roomRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    private Long getLoggedInUserId() {
+        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 
     @Override
     public PropertyDto createNewProperty(PropertyDto PropertyDto) {
@@ -42,8 +44,8 @@ public class PropertyServiceImpl implements PropertyService{
         Property Property = modelMapper.map(PropertyDto, Property.class);
         Property.setActive(false);
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Property.setOwner(user);
+        Long userId = getLoggedInUserId();
+        Property.setOwnerId(userId);
 
         Property = PropertyRepository.save(Property);
         log.info("Created a new Property with ID: {}", PropertyDto.getId());
@@ -56,12 +58,22 @@ public class PropertyServiceImpl implements PropertyService{
         Property Property = PropertyRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+id));
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = getLoggedInUserId();
 
-        if(!user.equals(Property.getOwner())) {
+        if(!userId.equals(Property.getOwnerId())) {
             throw new UnAuthorisedException("This user does not own this Property with id: "+id);
         }
 
+        return modelMapper.map(Property, PropertyDto.class);
+    }
+
+    @Override
+    public PropertyDto getInternalPropertyById(Long id) {
+        log.info("Getting internal Property with ID: {}", id);
+        Property Property = PropertyRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+id));
+        
         return modelMapper.map(Property, PropertyDto.class);
     }
 
@@ -72,8 +84,8 @@ public class PropertyServiceImpl implements PropertyService{
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+id));
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!user.equals(Property.getOwner())) {
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(Property.getOwnerId())) {
             throw new UnAuthorisedException("This user does not own this Property with id: "+id);
         }
 
@@ -90,8 +102,8 @@ public class PropertyServiceImpl implements PropertyService{
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+id));
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!user.equals(Property.getOwner())) {
+        Long userId = getLoggedInUserId();
+        if(!userId.equals(Property.getOwnerId())) {
             throw new UnAuthorisedException("This user does not own this Property with id: "+id);
         }
 
@@ -105,19 +117,28 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     @Transactional
-    public void activateProperty(Long PropertyId) {
-        log.info("Activating the Property with ID: {}", PropertyId);
+    public void activateProperty(Long propertyId) {
+        log.info("Activating the Property with ID: {}", propertyId);
         Property Property = PropertyRepository
-                .findById(PropertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+PropertyId));
+                .findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+propertyId));
 
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = getLoggedInUserId();
 
-        if(!user.equals(Property.getOwner())) {
-            throw new UnAuthorisedException("This user does not own this Property with id: "+PropertyId);
+        if(!userId.equals(Property.getOwnerId())) {
+            throw new UnAuthorisedException("This user does not own this Property with id: "+propertyId);
         }
 
         Property.setActive(true);
+
+        PropertySearchEvent searchEvent = PropertySearchEvent.builder()
+                .propertyId(Property.getId())
+                .name(Property.getName())
+                .city(Property.getCity())
+                .active(Property.getActive())
+                .build();
+        
+        kafkaTemplate.send("property-created-topic", searchEvent);
 
         // assuming only do it once
         for(Room room: Property.getRooms()) {
@@ -127,10 +148,10 @@ public class PropertyServiceImpl implements PropertyService{
 
     //    public method
     @Override
-    public PropertyInfoDto getPropertyInfoById(Long PropertyId) {
+    public PropertyInfoDto getPropertyInfoById(Long propertyId) {
         Property Property = PropertyRepository
-                .findById(PropertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+PropertyId));
+                .findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: "+propertyId));
 
         List<RoomDto> rooms = Property.getRooms()
                 .stream()
@@ -142,9 +163,9 @@ public class PropertyServiceImpl implements PropertyService{
 
     @Override
     public List<PropertyDto> getAllPropertys() {
-        User user = getCurrentUser();
-        log.info("Getting all Propertys for the admin user with ID: {}", user.getId());
-        List<Property> Propertys = PropertyRepository.findByOwner(user);
+        Long userId = getLoggedInUserId();
+        log.info("Getting all Propertys for the admin user with ID: {}", userId);
+        List<Property> Propertys = PropertyRepository.findByOwnerId(userId);
 
         return Propertys
                 .stream()

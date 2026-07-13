@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
-@FeignClient(name = "payment-service", url = "${payment.service.url:http://localhost:8086}")
+@FeignClient(name = "payment-service")
 public interface PaymentClient {
     @PostMapping("/internal/payments/checkout")
     Map<String, String> initiateCheckout(@RequestBody CheckoutRequest checkoutRequest);

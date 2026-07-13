@@ -16,6 +16,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 # Fallback values
 server:

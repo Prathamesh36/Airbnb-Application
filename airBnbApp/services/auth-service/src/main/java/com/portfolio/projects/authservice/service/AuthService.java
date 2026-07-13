@@ -28,6 +28,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
 
+    private final org.springframework.kafka.core.KafkaTemplate<String, String> kafkaTemplate;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     public UserDto signUp(SignUpRequestDto signUpRequestDto) {
 
         User user = userRepository.findByEmail(signUpRequestDto.getEmail()).orElse(null);
@@ -40,6 +43,17 @@ public class AuthService {
         newUser.setRoles(Set.of(Role.GUEST));
         newUser.setPassword(passwordEncoder.encode(signUpRequestDto.getPassword()));
         newUser = userRepository.save(newUser);
+
+        try {
+            com.portfolio.projects.common.event.UserCreatedEvent event = new com.portfolio.projects.common.event.UserCreatedEvent(
+                    newUser.getId(), newUser.getEmail(), newUser.getName(),
+                    newUser.getDateOfBirth(), newUser.getGender(), newUser.getRoles()
+            );
+            kafkaTemplate.send("user-created-topic", newUser.getId().toString(), objectMapper.writeValueAsString(event));
+        } catch (Exception e) {
+            // Log error but don't fail the signup
+            e.printStackTrace();
+        }
 
         return modelMapper.map(newUser, UserDto.class);
     }

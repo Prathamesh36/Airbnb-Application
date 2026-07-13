@@ -33,4 +33,10 @@ public class InternalInventoryController {
         inventoryService.releaseInventory(bookingDto);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/unreserve")
+    public ResponseEntity<Void> unreserveInventory(@RequestBody InventoryBookingDto bookingDto) {
+        inventoryService.unreserveInventory(bookingDto);
+        return ResponseEntity.ok().build();
+    }
 }

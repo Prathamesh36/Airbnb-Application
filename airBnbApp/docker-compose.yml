@@ -46,6 +46,7 @@ services:
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list"]
       interval: 10s
@@ -98,7 +99,7 @@ services:
         - MODULE_PATH=infrastructure/api-gateway
     container_name: airbnb-gateway
     ports:
-      - "8000:8000"
+      - "8000:8080"
     environment:
       - JAVA_OPTS=-Xmx256m -Xms128m
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -252,6 +253,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JWT_SECRET_KEY=7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R
+      - STRIPE_SECRET_KEY=sk_test_51SvukyCJN7zswJgWcwYdouwjAVTr0BLGJFxIHz5iFK19tC9pYZRcw8njOMpG9mq74gDaZXTJQQGzbAgdP4g3Qmkg00LcPptmNG
+      - STRIPE_WEBHOOK_SECRET=whsec_1308e7366e8c2d321b75da13d81590cb4cbe7d3b213fb4a15cab48dad833e0ee
     depends_on:
       eureka-server:
         condition: service_healthy

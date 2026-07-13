@@ -267,6 +267,6 @@ public class BookingServiceImpl implements BookingService{
     }
 
     public boolean hasBookingExpired(Booking booking) {
-        return booking.getCreatedAt().plusMinutes(10).isBefore(LocalDateTime.now());
+        return booking.getCreatedAt().plusMinutes(4).isBefore(LocalDateTime.now());
     }
 }

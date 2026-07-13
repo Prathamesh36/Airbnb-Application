@@ -36,9 +36,11 @@ eureka:
 
 stripe:
   webhook:
-    secret: "whsec_..."
+    secret: "whsec_091ae3fdab8294f6aa1d324cbea02306ff314e4042795755afe8ce423970ddef"
   secret:
-    key: "sk_test_..."
+    key: "sk_test_51SvukyCJN7zswJgWcwYdouwjAVTr0BLGJFxIHz5iFK19tC9pYZRcw8njOMpG9mq74gDaZXTJQQGzbAgdP4g3Qmkg00LcPptmNG"
+  publishable:
+    key: "pk_test_51SvukyCJN7zswJgWCDLPxDUZTP8joDnSKh828FEK0j3lmIfUKLrp6t98ml2MQCLj9tyCRS3nks6r1e5QXxRkVVXE00F15hi1zo"
 
 jwt:
   secretKey: "7D9D3F82C9E4B5A6D8F1B3E5C7A9D2F4B6E8A1C3D5F7G9H2J4K6L8M0N2P4Q6R"

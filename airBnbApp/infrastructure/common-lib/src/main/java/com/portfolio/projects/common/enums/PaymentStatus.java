@@ -1,5 +1,6 @@
 package com.portfolio.projects.common.enums;
 
-public enum PaymentStatus {
-    PENDING, SUCCESS, CONFIRMED, CANCELLED
+public enum
+PaymentStatus {
+    PENDING, SUCCESS, CONFIRMED, CANCELLED, REFUNDED
 }

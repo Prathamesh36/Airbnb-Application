@@ -43,8 +43,8 @@ public class Property {
     @Column(nullable = false)
     private Boolean active;
 
-    @ManyToOne(optional = false)
-    private User owner;
+    @Column(nullable = false)
+    private Long ownerId;
 
     @OneToMany(mappedBy = "Property")
     @JsonIgnore

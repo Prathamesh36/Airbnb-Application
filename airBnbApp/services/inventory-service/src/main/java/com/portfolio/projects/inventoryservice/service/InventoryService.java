@@ -22,4 +22,6 @@ public interface InventoryService {
     void confirmInventory(InventoryBookingDto bookingDto);
 
     void releaseInventory(InventoryBookingDto bookingDto);
+
+    void unreserveInventory(InventoryBookingDto bookingDto);
 }

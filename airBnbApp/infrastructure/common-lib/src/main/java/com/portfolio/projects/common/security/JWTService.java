@@ -27,7 +27,7 @@ public class JWTService {
                 .claim("email", email)
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000*60*10))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -48,6 +48,18 @@ public class JWTService {
                 .parseSignedClaims(token)
                 .getPayload();
         return Long.valueOf(claims.getSubject());
+    }
+
+    public String[] getRolesFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        String rolesStr = claims.get("roles", String.class);
+        if (rolesStr == null || rolesStr.isEmpty()) return new String[0];
+        rolesStr = rolesStr.replace("[", "").replace("]", "");
+        return rolesStr.split(",\\s*");
     }
 
 }

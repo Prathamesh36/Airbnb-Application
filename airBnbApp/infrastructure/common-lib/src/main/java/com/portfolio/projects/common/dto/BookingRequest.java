@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class BookingRequest {
-    private Long PropertyId;
+    private Long propertyId;
     private Long roomId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;

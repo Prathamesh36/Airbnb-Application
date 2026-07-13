@@ -21,9 +21,9 @@ public class PropertyBrowseController {
 
     private final PropertyService PropertyService;
 
-    @GetMapping("/{PropertyId}/info")
-    public ResponseEntity<PropertyInfoDto> getPropertyInfo(@PathVariable Long PropertyId) {
-        log.info("Received request for Property info with ID: {}", PropertyId);
-        return ResponseEntity.ok(PropertyService.getPropertyInfoById(PropertyId));
+    @GetMapping("/{propertyId}/info")
+    public ResponseEntity<PropertyInfoDto> getPropertyInfo(@PathVariable Long propertyId) {
+        log.info("Received request for Property info with ID: {}", propertyId);
+        return ResponseEntity.ok(PropertyService.getPropertyInfoById(propertyId));
     }
 }

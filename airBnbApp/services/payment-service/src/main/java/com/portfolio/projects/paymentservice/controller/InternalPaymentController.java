@@ -2,6 +2,7 @@ package com.portfolio.projects.paymentservice.controller;
 
 import com.portfolio.projects.common.dto.CheckoutRequest;
 import com.portfolio.projects.paymentservice.service.CheckoutService;
+import com.portfolio.projects.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class InternalPaymentController {
 
     private final CheckoutService checkoutService;
+    private final PaymentService paymentService;
 
     @PostMapping("/checkout")
     public ResponseEntity<Map<String, String>> initiateCheckout(@RequestBody CheckoutRequest checkoutRequest) {
@@ -30,8 +32,11 @@ public class InternalPaymentController {
     @PostMapping("/refund")
     public ResponseEntity<Void> refundPayment(@RequestBody Map<String, Long> request) {
         Long bookingId = request.get("bookingId");
-        // For now just logging it. Full Stripe Refund logic can be added later.
-        System.out.println("Processing refund for booking ID: " + bookingId);
+        try {
+            paymentService.refundPayment(bookingId);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process refund for booking ID: " + bookingId, e);
+        }
         return ResponseEntity.noContent().build();
     }
 }

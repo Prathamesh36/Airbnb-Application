@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.stereotype.Service;
 
-import static com.portfolio.projects.userservice.util.AppUtils.getCurrentUser;
+import static com.portfolio.projects.userservice.util.AppUtils.getCurrentUserId;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +33,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void updateProfile(ProfileUpdateRequestDto profileUpdateRequestDto) {
-        User user = getCurrentUser();
+        Long userId = getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if(profileUpdateRequestDto.getDateOfBirth() != null) user.setDateOfBirth(profileUpdateRequestDto.getDateOfBirth());
         if(profileUpdateRequestDto.getGender() != null) user.setGender(profileUpdateRequestDto.getGender());
@@ -44,7 +45,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDto getMyProfile() {
-        User user = getCurrentUser();
+        Long userId = getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         log.info("Getting the profile for user with id: {}", user.getId());
         return modelMapper.map(user, UserDto.class);
     }

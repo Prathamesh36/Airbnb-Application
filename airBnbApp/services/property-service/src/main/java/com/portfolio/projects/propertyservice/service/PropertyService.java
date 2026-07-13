@@ -13,13 +13,15 @@ public interface PropertyService {
 
     PropertyDto getPropertyById(Long id);
 
+    PropertyDto getInternalPropertyById(Long id);
+
     PropertyDto updatePropertyById(Long id, PropertyDto PropertyDto);
 
     void deletePropertyById(Long id);
 
-    void activateProperty(Long PropertyId);
+    void activateProperty(Long propertyId);
 
-    PropertyInfoDto getPropertyInfoById(Long PropertyId);
+    PropertyInfoDto getPropertyInfoById(Long propertyId);
 
     List<PropertyDto> getAllPropertys();
 }

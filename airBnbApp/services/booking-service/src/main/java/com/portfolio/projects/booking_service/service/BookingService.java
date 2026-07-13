@@ -21,9 +21,9 @@ public interface BookingService {
 
     String getBookingStatus(Long bookingId);
 
-    List<BookingDto> getAllBookingsByPropertyId(Long PropertyId);
+    List<BookingDto> getAllBookingsByPropertyId(Long propertyId);
 
-    PropertyReportDto getPropertyReport(Long PropertyId, LocalDate startDate, LocalDate endDate);
+    PropertyReportDto getPropertyReport(Long propertyId, LocalDate startDate, LocalDate endDate);
 
     List<BookingDto> getMyBookings();
 }
