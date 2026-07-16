@@ -6,6 +6,14 @@ spring:
     name: api-gateway
   config:
     import: "optional:configserver:http://localhost:8888"
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
 
 eureka:
   client:

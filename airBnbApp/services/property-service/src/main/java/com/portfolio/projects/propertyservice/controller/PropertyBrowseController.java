@@ -21,6 +21,13 @@ public class PropertyBrowseController {
 
     private final PropertyService PropertyService;
 
+    @GetMapping("/featured")
+    public ResponseEntity<List<PropertyDto>> getFeaturedProperties() {
+        log.info("Received request for featured properties");
+        // Returning all properties as featured for now
+        return ResponseEntity.ok(PropertyService.getAllPropertys());
+    }
+
     @GetMapping("/{propertyId}/info")
     public ResponseEntity<PropertyInfoDto> getPropertyInfo(@PathVariable Long propertyId) {
         log.info("Received request for Property info with ID: {}", propertyId);
